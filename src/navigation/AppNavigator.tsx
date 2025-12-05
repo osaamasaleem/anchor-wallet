@@ -4,7 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 // Import your three screen components
 import SplashScreen from '../screens/SplashScreen';
 import LoginScreen from '../screens/LoginScreen';
-import SignUpScreen from '../screens/SignUpScreen'; // <-- No spaces at the end
+import SignUpScreen from '../screens/SignUpScreen';
+import MnemonicScreen from '../screens/MnemonicScreen';
 
 // This exports a "type list" so our other screens know
 // what props to expect for navigation.
@@ -12,6 +13,7 @@ export type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
   SignUp: undefined;
+  Mnemonic: undefined;
 };
 
 // This is the "Stack" that will hold all your screens
@@ -28,6 +30,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
+      <Stack.Screen name="Mnemonic" component={MnemonicScreen} />
     </Stack.Navigator>
   );
 }

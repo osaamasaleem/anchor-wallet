@@ -81,9 +81,12 @@ export default function SignUpScreen({ navigation }: Props) {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.signUpButton}>
-            <Text style={styles.signUpButtonText}>Sign Up</Text>
-          </TouchableOpacity>
+          <TouchableOpacity 
+  style={styles.signUpButton} 
+  onPress={() => navigation.navigate('Mnemonic')} // <-- Add this!
+>
+  <Text style={styles.signUpButtonText}>Sign Up</Text>
+</TouchableOpacity>
 
           <View style={styles.learnMoreRow}>
             <Text style={styles.learnMoreText}>Learn. </Text>
