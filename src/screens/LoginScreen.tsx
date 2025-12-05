@@ -1,3 +1,5 @@
+
+
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, StatusBar } from 'react-native';
 import Logo from '../../assets/images/logo.svg'; 
 // Import navigation types

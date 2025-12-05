@@ -156,6 +156,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 60,
   },
+  logo: {
+    marginLeft: -35,
+    marginBottom: 20,
+  },
   header: {
     marginBottom: 30,
     alignItems: 'center',
