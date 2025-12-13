@@ -40,6 +40,7 @@ const DUMMY_MNEMONIC = [
 ];
 
 export default function MnemonicScreen({ navigation }: any) {
+
   const [isButtonDisabled, setIsButtonDisabled] = useState(true);
   const [countdown, setCountdown] = useState(5);
 
@@ -69,10 +70,11 @@ export default function MnemonicScreen({ navigation }: any) {
 
   // --- NAVIGATION HANDLER ---
   const handleContinue = () => {
-    // Navigate to your main app (Dashboard)
-    // For now, we can just log or go back to Login as a placeholder
-    console.log("Navigate to Dashboard");
-    // navigation.navigate('Dashboard'); // Uncomment when you have a Dashboard
+    // Navigate to the TabNavigator (MainApp) and clear the history stack
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MainApp' }],
+    });
   };
 
   // --- RENDER ITEM (For FlatList) ---
@@ -82,6 +84,8 @@ export default function MnemonicScreen({ navigation }: any) {
       <Text style={styles.wordText}>{item.word}</Text>
     </View>
   );
+
+ 
 
   return (
     <View style={styles.container}>
