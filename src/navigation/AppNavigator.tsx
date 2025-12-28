@@ -5,15 +5,10 @@ import SplashScreen from '../screens/SplashScreen';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import MnemonicScreen from '../screens/MnemonicScreen';
+import CredentialDetailScreen from '../screens/CredentialDetailScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
 import TabNavigator from './TabNavigator';
-
-export type RootStackParamList = {
-  Splash: undefined;
-  Login: undefined;
-  SignUp: undefined;
-  Mnemonic: undefined;
-  MainApp: undefined;
-};
+import { RootStackParamList } from '../types/navigation';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -25,6 +20,8 @@ export default function AppNavigator() {
       <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="Mnemonic" component={MnemonicScreen} />
       <Stack.Screen name="MainApp" component={TabNavigator} />
+      <Stack.Screen name="CredentialDetail" component={CredentialDetailScreen} />
+      <Stack.Screen name="Notifications" component={NotificationsScreen} />
     </Stack.Navigator>
   );
 }

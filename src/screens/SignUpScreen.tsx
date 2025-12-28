@@ -7,20 +7,15 @@ import {
   StatusBar, 
   KeyboardAvoidingView,
   Platform,
-  ScrollView // Added ScrollView
+  ScrollView
 } from 'react-native';
-// Import navigation types
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
+import { RootStackParamList } from '../types/navigation';
+import Logo from '../../assets/images/logo.svg';
+import COLORS from '../../constants/colors';
+import { scale, fontSize, spacing } from '../../utils/responsive';
+import { Button } from '../../components/Button';
 
-import Logo from '../../assets/images/logo.svg'; 
-
-const COLORS = {
-  primary: '#311F5A', 
-  white: '#FFFFFF',
-};
-
-// --- This type is for React Navigation ---
 type SignUpScreenNavigationProp = StackNavigationProp<RootStackParamList, 'SignUp'>;
 
 type Props = {
@@ -44,8 +39,8 @@ export default function SignUpScreen({ navigation }: Props) {
   showsVerticalScrollIndicator={false}>
         
         <Logo 
-          width={184.05} 
-          height={199.29} 
+          width={scale(184.05)} 
+          height={scale(199.29)} 
           style={styles.logo} 
           fill={COLORS.white} 
         />
@@ -56,37 +51,37 @@ export default function SignUpScreen({ navigation }: Props) {
         <View style={styles.inputContainer}>
           <TextInput
             placeholder="Full Name"
-            placeholderTextColor="#FFFFFF80" 
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
             style={styles.input}
           />
           <TextInput
             placeholder="Email Address"
-            placeholderTextColor="#FFFFFF80" 
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
             style={styles.input}
             keyboardType="email-address"
             autoCapitalize="none"
           />
           <TextInput
             placeholder="Password"
-            placeholderTextColor="#FFFFFF80" 
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
             style={styles.input}
             secureTextEntry 
           />
           <TextInput
             placeholder="Confirm Password"
-            placeholderTextColor="#FFFFFF80" 
+            placeholderTextColor="rgba(255, 255, 255, 0.5)"
             style={styles.input}
             secureTextEntry 
           />
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-  style={styles.signUpButton} 
-  onPress={() => navigation.navigate('Mnemonic')} // <-- Add this!
->
-  <Text style={styles.signUpButtonText}>Sign Up</Text>
-</TouchableOpacity>
+          <Button 
+            title="Sign Up" 
+            onPress={() => navigation.navigate('Mnemonic')}
+            variant="outline"
+            style={[styles.signUpButton, { backgroundColor: COLORS.white, borderColor: COLORS.white }]}
+          />
 
           <View style={styles.learnMoreRow}>
             <Text style={styles.learnMoreText}>Learn. </Text>
@@ -97,7 +92,6 @@ export default function SignUpScreen({ navigation }: Props) {
 
           <View style={styles.loginRow}>
             <Text style={styles.loginText}>Already a user? </Text>
-            {/* This now uses the navigation prop to go back to the 'Login' screen */}
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
               <Text style={styles.loginLink}>Login</Text>
             </TouchableOpacity>
@@ -108,95 +102,84 @@ export default function SignUpScreen({ navigation }: Props) {
   );
 }
 
-// --- STYLESHEET (Using your final styles) ---
 const styles = StyleSheet.create({
   keyboardAvoidingContainer: {
     flex: 1,
     backgroundColor: COLORS.primary,
   },
   container: {
-    flexGrow: 1, // Allows content to grow and scroll
+    flexGrow: 1,
     backgroundColor: COLORS.primary,
-    paddingHorizontal: 34, 
-    paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 20 : 68, 
-    paddingBottom: 40, // Add some padding at the bottom
+    paddingHorizontal: spacing.lg,
+    paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + spacing.md : scale(68),
+    paddingBottom: spacing['2xl'],
   },
- logo: {
-    marginLeft:-35, // Centered your logo
-    marginBottom: 20,
+  logo: {
+    marginLeft: scale(-35),
+    marginBottom: spacing.md,
   },
   title: {
-    fontSize: 48,
+    fontSize: fontSize['4xl'],
     fontWeight: 'bold',
     color: COLORS.white,
     textAlign: 'left',
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
     color: COLORS.white,
     opacity: 0.8,
     textAlign: 'left',
-    marginBottom: 32,
+    marginBottom: spacing.xl,
   },
   inputContainer: {
     width: '100%',
   },
   input: {
     width: '100%',
-    height: 50,
+    height: scale(50),
     borderWidth: 1,
-    borderColor: '#FFFFFF80', 
-    borderRadius: 8,
-    paddingHorizontal: 16,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: scale(8),
+    paddingHorizontal: spacing.md,
     color: COLORS.white,
-    fontSize: 16,
-    marginBottom: 16,
+    fontSize: fontSize.md,
+    marginBottom: spacing.md,
   },
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
-    marginTop: 24, // Adjusted spacing
+    marginTop: spacing.lg,
   },
   signUpButton: {
-    width: '100%',
-    height: 50,
-    backgroundColor: COLORS.white,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  signUpButtonText: {
-    color: COLORS.primary,
-    fontSize: 16,
-    fontWeight: 'bold',
+    marginBottom: spacing.sm,
   },
   learnMoreRow: {
     flexDirection: 'row',
-    marginTop: 12, 
+    marginTop: spacing.sm,
   },
   learnMoreText: {
     color: COLORS.white,
     opacity: 0.8,
-    fontSize: 14,
+    fontSize: fontSize.base,
   },
   learnMoreLink: {
     color: COLORS.white,
-    fontSize: 14,
+    fontSize: fontSize.base,
     fontWeight: 'bold',
   },
   loginRow: {
     flexDirection: 'row',
-    marginTop: 40, 
-    marginBottom: 40, // Added bottom margin
+    marginTop: spacing['2xl'],
+    marginBottom: spacing['2xl'],
   },
   loginText: {
     color: COLORS.white,
     opacity: 0.8,
-    fontSize: 14,
+    fontSize: fontSize.base,
   },
   loginLink: {
     color: COLORS.white,
-    fontSize: 14,
+    fontSize: fontSize.base,
     fontWeight: 'bold',
   },
 });

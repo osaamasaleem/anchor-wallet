@@ -2,35 +2,34 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import COLORS from '../../constants/colors';
+import { scale } from '../../utils/responsive';
 
 // Import stack navigators instead of screens
 import HomeStack from './HomeStack';
 import WalletStack from './WalletStack';
 import ProfileScreen from '../screens/ProfileScreen';
+import { TabParamList } from '../types/navigation';
 
-// --- COLOR PALETTE ---
-const COLORS = {
-  primary: '#311F5A',
-  white: '#FFFFFF',
-  grey: '#A0A0A0',
-};
-
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<TabParamList>();
 
 export default function TabNavigator() {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: COLORS.grey,
+        tabBarInactiveTintColor: COLORS.darkGrey,
         tabBarStyle: {
-          height: 60,
-          paddingBottom: 10,
-          paddingTop: 10,
+          height: scale(60) + insets.bottom,
+          paddingBottom: insets.bottom + scale(10),
+          paddingTop: scale(10),
           backgroundColor: COLORS.white,
           borderTopWidth: 1,
-          borderTopColor: '#F1F3F6',
+          borderTopColor: COLORS.grey,
           elevation: 5,
         },
         tabBarIcon: ({ focused, color, size }) => {

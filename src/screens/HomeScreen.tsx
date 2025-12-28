@@ -1,86 +1,104 @@
 // src/screens/HomeScreen.tsx
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
   Text,
   TouchableOpacity,
   ScrollView,
-  StatusBar,
-  Platform,
   Share,
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
-// Import navigation types
 import { StackNavigationProp } from '@react-navigation/stack';
-import { HomeStackParamList } from '../navigation/HomeStack'; // Import HomeStack types
+import { HomeStackParamList } from '../types/navigation';
+import COLORS from '../../constants/colors';
+import { scale, fontSize, spacing } from '../../utils/responsive';
+import { AppHeader } from '../../components/AppHeader';
+import { FloatingCard } from '../../components/FloatingCard';
+import { CredentialCard } from '../../components/CredentialCard';
+import { Section } from '../../components/Section';
 
-// --- COLOR PALETTE ---
-const COLORS = {
-  primary: '#311F5A',
-  white: '#FFFFFF',
-  grey: '#F1F3F6',
-  textDark: '#1A202C',
-  textGrey: '#718096',
-  green: '#22543D',
-  greenLight: '#C6F6D5',
-  shadow: '#000000',
-};
-
-// Define the navigation prop type for HomeStack
 type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'HomeMain'>;
 
 type Props = {
   navigation: HomeScreenNavigationProp;
 };
 
-export default function HomeScreen({ navigation }: Props) { // Add navigation prop
-    const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
+export default function HomeScreen({ navigation }: Props) {
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
+
+  const handleShareID = () => {
+    const userDID = "did:ethr:0x12...34";
+    Share.share({
+      message: `Connect with me on Anchor Wallet! My Decentralized Identity: ${userDID}`,
+      title: 'Share my Digital Identity',
+    })
+      .then((result) => {
+        if (result.action === Share.sharedAction) {
+          Alert.alert('Shared successfully!');
+        }
+      })
+      .catch((error) => {
+        Alert.alert('Error', 'Failed to share: ' + error.message);
+      });
+  };
+
+  const recentCredentials = [
+    {
+      id: '1',
+      title: 'Bachelor of Science',
+      issuer: 'Foundation University',
+      issueDate: '2023-11-01',
+      expiryDate: null,
+      type: 'Degree',
+      status: 'valid' as const,
+      verified: true,
+      category: 'education' as const,
+      logo: '🏛️',
+      color: '#4F46E5',
+    },
+    {
+      id: '2',
+      title: 'React Native Certification',
+      issuer: 'Udemy',
+      issueDate: '2023-10-01',
+      expiryDate: '2025-10-01',
+      type: 'Professional Certification',
+      status: 'valid' as const,
+      verified: true,
+      category: 'professional' as const,
+      logo: '🎓',
+      color: '#06B6D4',
+    },
+  ];
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
-      
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent} 
+        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
+      >
+        <AppHeader 
+          title="Anchor" 
+          hasUnreadNotifications={hasUnreadNotifications}
+          onNotificationPress={() => {
+            (navigation.getParent() as any)?.navigate('Notifications');
+          }}
+        />
         
-        {/* --- HEADER SECTION --- */}
-        <View style={styles.header}>
-          {/* Top Navigation Row */}
-         <View style={styles.topNav}>
-  <Text style={styles.appName}>Anchor</Text>
-  <TouchableOpacity 
-  style={styles.notificationBtn}
-  onPress={() => {
-    console.log('Button pressed');
-    // Try with any type
-    (navigation as any).navigate('Notifications');
-  }}
->
-    <Ionicons name="notifications-outline" size={24} color={COLORS.white} />
-    {/* Notification Dot - show if there are unread notifications */}
-    {hasUnreadNotifications && (
-      <View style={styles.notificationDot} />
-    )}
-  </TouchableOpacity>
-</View>
-          {/* Background Curve/Shape can be simulated with the view's border radius */}
-        </View>
-
-        {/* --- IDENTITY CARD (Floating) --- */}
-        <View style={styles.identityCard}>
+        <FloatingCard offset={-60}>
           <View style={styles.cardHeader}>
             <View style={styles.avatarContainer}>
-               {/* Placeholder for User Avatar - using an icon for now */}
-               <Ionicons name="person" size={30} color={COLORS.primary} />
+              <Ionicons name="person" size={scale(30)} color={COLORS.primary} />
             </View>
             <View style={styles.userInfo}>
               <Text style={styles.userName}>Usama Saleem</Text>
               <View style={styles.didContainer}>
                 <Text style={styles.userDid}>did:ethr:0x12...34</Text>
                 <TouchableOpacity>
-                    <Ionicons name="copy-outline" size={14} color={COLORS.textGrey} style={{marginLeft: 4}}/>
+                  <Ionicons name="copy-outline" size={scale(14)} color={COLORS.textGrey} style={{ marginLeft: spacing.xs }} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -88,300 +106,137 @@ export default function HomeScreen({ navigation }: Props) { // Add navigation pr
               <Text style={styles.verifiedText}>Verified</Text>
             </View>
           </View>
-        </View>
+        </FloatingCard>
 
-        {/* --- QUICK ACTIONS --- */}
         <View style={styles.actionsContainer}>
-          {/* Scan QR Button - Updated to navigate to QRScanner */}
           <TouchableOpacity 
             style={styles.actionButton}
-            onPress={() => navigation.navigate('QRScanner')} // Updated navigation
+            onPress={() => navigation.navigate('QRScanner')}
           >
             <View style={[styles.iconCircle, { backgroundColor: '#E0D4FC' }]}>
-                <Ionicons name="qr-code-outline" size={32} color={COLORS.primary} />
+              <Ionicons name="qr-code-outline" size={scale(32)} color={COLORS.primary} />
             </View>
             <Text style={styles.actionText}>Scan QR</Text>
           </TouchableOpacity>
 
-          {/* Share ID Button */}
-         <TouchableOpacity 
-  style={styles.actionButton}
-  onPress={() => {
-    // Get user DID from your app state
-    const userDID = "did:ethr:0x12...34"; // Replace with actual DID from your state
-    
-    Share.share({
-      message: `Connect with me on Anchor Wallet! My Decentralized Identity: ${userDID}`,
-      title: 'Share my Digital Identity',
-    })
-    .then((result) => {
-      if (result.action === Share.sharedAction) {
-        Alert.alert('Shared successfully!');
-      }
-    })
-    .catch((error) => {
-      Alert.alert('Error', 'Failed to share: ' + error.message);
-    });
-  }}
->
-  <View style={[styles.iconCircle, { backgroundColor: '#E0F2F1' }]}>
-    <Ionicons name="share-social-outline" size={32} color={COLORS.primary} />
-  </View>
-  <Text style={styles.actionText}>Share ID</Text>
-</TouchableOpacity>
-
-</View>
-
-        {/* --- RECENT CREDENTIALS --- */}
-        <View style={styles.recentSection}>
-          <Text style={styles.sectionTitle}>Recent Credentials</Text>
-          
-          {/* Credential Card 1 - Updated to navigate to CredentialDetail */}
           <TouchableOpacity 
-            style={styles.credentialCard}
-            onPress={() => navigation.navigate('CredentialDetail', {
-              credential: {
-                id: '1',
-                title: 'Bachelor of Science',
-                issuer: 'Foundation University',
-                issueDate: '2023-11-01',
-                expiryDate: null,
-                type: 'Degree',
-                status: 'valid',
-                verified: true,
-                category: 'education',
-                logo: '🏛️',
-                color: '#4F46E5',
-              }
-            })}
+            style={styles.actionButton}
+            onPress={handleShareID}
           >
-            <View style={styles.credLogoPlaceholder}>
-               <Text style={{fontSize: 18}}>🏛️</Text>
+            <View style={[styles.iconCircle, { backgroundColor: '#E0F2F1' }]}>
+              <Ionicons name="share-social-outline" size={scale(32)} color={COLORS.primary} />
             </View>
-            <View style={styles.credInfo}>
-              <Text style={styles.credTitle}>Bachelor of Science</Text>
-              <Text style={styles.credIssuer}>Foundation University</Text>
-              <Text style={styles.credDate}>Nov 2025</Text>
-            </View>
-            <Ionicons name="checkmark-circle" size={24} color="green" />
+            <Text style={styles.actionText}>Share ID</Text>
           </TouchableOpacity>
-
-           {/* Credential Card 2 - Updated to navigate to CredentialDetail */}
-           <TouchableOpacity 
-            style={styles.credentialCard}
-            onPress={() => navigation.navigate('CredentialDetail', {
-              credential: {
-                id: '2',
-                title: 'React Native Certification',
-                issuer: 'Udemy',
-                issueDate: '2023-10-01',
-                expiryDate: '2025-10-01',
-                type: 'Professional Certification',
-                status: 'valid',
-                verified: true,
-                category: 'professional',
-                logo: '🎓',
-                color: '#06B6D4',
-              }
-            })}
-          >
-            <View style={styles.credLogoPlaceholder}>
-                <Text style={{fontSize: 18}}>🎓</Text>
-            </View>
-            <View style={styles.credInfo}>
-              <Text style={styles.credTitle}>React Native Certification</Text>
-              <Text style={styles.credIssuer}>Udemy</Text>
-              <Text style={styles.credDate}>Oct 2025</Text>
-            </View>
-            <Ionicons name="checkmark-circle" size={24} color="green" />
-          </TouchableOpacity>
-
         </View>
 
+        <Section title="Recent Credentials" showBackground={false} containerStyle={styles.recentSection}>
+          {recentCredentials.map((credential) => (
+            <CredentialCard
+              key={credential.id}
+              credential={credential}
+              variant="compact"
+              onPress={() => {
+                (navigation.getParent() as any)?.navigate('CredentialDetail', { credential });
+              }}
+            />
+          ))}
+        </Section>
       </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // ... (keep all your existing styles exactly the same)
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
   },
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
-    paddingBottom: 100,
-  },
-  header: {
-    backgroundColor: COLORS.primary,
-    height: 220,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    paddingHorizontal: 24,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight! + 20 : 60,
-    alignItems: 'flex-start',
-  },
-  topNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  appName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  notificationBtn: {
-    position: 'relative',
-    padding: 4,
-  },
-  notificationDot: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'red',
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-  },
-  identityCard: {
-    backgroundColor: COLORS.white,
-    marginHorizontal: 24,
-    marginTop: -60,
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 5,
+    paddingTop: 0, // No padding - FloatingCard will overlap header
+    paddingBottom: spacing['2xl'] * 2.5,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   avatarContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: scale(60),
+    height: scale(60),
+    borderRadius: scale(30),
     backgroundColor: COLORS.grey,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: spacing.md,
   },
   userInfo: {
     flex: 1,
   },
   userName: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
     fontWeight: 'bold',
     color: COLORS.textDark,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   didContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   userDid: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: COLORS.textGrey,
   },
   verifiedBadge: {
-    backgroundColor: COLORS.greenLight,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
+    backgroundColor: COLORS.successLight,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: scale(12),
     position: 'absolute',
     top: 0,
     right: 0,
   },
   verifiedText: {
-    color: COLORS.green,
-    fontSize: 10,
+    color: COLORS.success,
+    fontSize: fontSize.xs,
     fontWeight: 'bold',
   },
   actionsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    marginTop: 24,
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.lg,
   },
   actionButton: {
     backgroundColor: COLORS.white,
     width: '47%',
-    paddingVertical: 20,
-    borderRadius: 16,
+    paddingVertical: spacing.md,
+    borderRadius: scale(16),
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: COLORS.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 8,
+    shadowRadius: scale(8),
     elevation: 2,
   },
   iconCircle: {
-      width: 60,
-      height: 60,
-      borderRadius: 30,
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginBottom: 12,
+    width: scale(60),
+    height: scale(60),
+    borderRadius: scale(30),
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
   },
   actionText: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: '600',
     color: COLORS.primary,
   },
   recentSection: {
-    paddingHorizontal: 24,
-    marginTop: 32,
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.xl,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.textDark,
-    marginBottom: 16,
-  },
-  credentialCard: {
-    backgroundColor: COLORS.white,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  credLogoPlaceholder: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
-    backgroundColor: COLORS.grey,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  credInfo: {
-    flex: 1,
-  },
-  credTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.textDark,
-  },
-  credIssuer: {
-    fontSize: 14,
-    color: COLORS.textGrey,
-    marginTop: 2,
-  },
-  credDate: {
-      fontSize: 12,
-      color: COLORS.textGrey,
-      marginTop: 2,
-      opacity: 0.7
-  }
 });

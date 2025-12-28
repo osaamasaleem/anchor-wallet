@@ -1,39 +1,24 @@
 // screens/ProfileScreen.tsx
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StatusBar,
-  Alert,
-  Switch,
-  Modal,
-  TextInput,
+    Alert,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    Switch,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-
-// --- COLOR PALETTE ---
-const COLORS = {
-  primary: '#311F5A',
-  secondary: '#4C35AA',
-  white: '#FFFFFF',
-  grey: '#F1F3F6',
-  lightGrey: '#F8F9FA',
-  textDark: '#1A202C',
-  textGrey: '#718096',
-  success: '#22543D',
-  successLight: '#C6F6D5',
-  warning: '#B45309',
-  warningLight: '#FEF3C7',
-  error: '#DC2626',
-  errorLight: '#FEE2E2',
-  shadow: '#000000',
-  border: '#E0E0E0',
-  blue: '#2563EB',
-  blueLight: '#DBEAFE',
-};
+import { AppHeader } from '../../components/AppHeader';
+import { Button } from '../../components/Button';
+import { FloatingCard } from '../../components/FloatingCard';
+import { Section } from '../../components/Section';
+import COLORS from '../../constants/colors';
+import { fontSize, scale, spacing } from '../../utils/responsive';
 
 // --- USER PROFILE DATA ---
 const USER_PROFILE = {
@@ -44,7 +29,8 @@ const USER_PROFILE = {
   avatar: '👤', // You can replace with actual image URL
 };
 
-export default function ProfileScreen({ navigation }: any) {
+export default function ProfileScreen({ navigation: navProp }: any) {
+  const navigation = useNavigation();
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -109,34 +95,30 @@ export default function ProfileScreen({ navigation }: any) {
       onPress={item.onPress}
     >
       <View style={[styles.menuIconContainer, { backgroundColor: `${item.color}15` }]}>
-        <Ionicons name={item.icon as any} size={22} color={item.color} />
+        <Ionicons name={item.icon as any} size={scale(22)} color={item.color} />
       </View>
       <Text style={styles.menuText}>{item.title}</Text>
-      <Ionicons name="chevron-forward" size={20} color={COLORS.textGrey} />
+              <Ionicons name="chevron-forward" size={scale(20)} color={COLORS.textGrey} />
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
-      
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent} 
+        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
+      >
         
-        {/* --- HEADER SECTION (Same as HomeScreen) --- */}
-        <View style={styles.header}>
-          {/* Top Navigation Row */}
-          <View style={styles.topNav}>
-            <Text style={styles.appName}>Profile</Text>
-            <TouchableOpacity style={styles.notificationBtn}>
-              <Ionicons name="notifications-outline" size={24} color={COLORS.white} />
-              {/* Notification Dot */}
-              <View style={styles.notificationDot} />
-            </TouchableOpacity>
-          </View>
-        </View>
+        <AppHeader 
+          title="Profile" 
+          hasUnreadNotifications={true}
+          onNotificationPress={() => {
+            (navigation.getParent() as any)?.navigate('Notifications');
+          }}
+        />
 
-        {/* --- IDENTITY CARD (Floating) --- */}
-        <View style={styles.identityCard}>
+        <FloatingCard offset={-60}>
           <View style={styles.cardHeader}>
             <View style={styles.avatarContainer}>
               <Text style={styles.avatarText}>{USER_PROFILE.avatar}</Text>
@@ -174,16 +156,14 @@ export default function ProfileScreen({ navigation }: any) {
               <Text style={styles.statLabel}>Member Since</Text>
             </View>
           </View>
-        </View>
+        </FloatingCard>
 
-        {/* --- QUICK SETTINGS --- */}
-        <View style={styles.settingsSection}>
-          <Text style={styles.sectionTitle}>Quick Settings</Text>
+        <Section title="Quick Settings">
           
           {/* Notifications */}
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Ionicons name="notifications-outline" size={22} color={COLORS.primary} />
+              <Ionicons name="notifications-outline" size={scale(22)} color={COLORS.primary} />
               <View style={styles.settingTextContainer}>
                 <Text style={styles.settingTitle}>Push Notifications</Text>
                 <Text style={styles.settingSubtitle}>Receive alerts and updates</Text>
@@ -200,7 +180,7 @@ export default function ProfileScreen({ navigation }: any) {
           {/* Dark Mode */}
           <View style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Ionicons name="moon-outline" size={22} color={COLORS.primary} />
+              <Ionicons name="moon-outline" size={scale(22)} color={COLORS.primary} />
               <View style={styles.settingTextContainer}>
                 <Text style={styles.settingTitle}>Dark Mode</Text>
                 <Text style={styles.settingSubtitle}>Switch to dark theme</Text>
@@ -213,22 +193,22 @@ export default function ProfileScreen({ navigation }: any) {
               thumbColor={isDarkMode ? COLORS.primary : COLORS.white}
             />
           </View>
-        </View>
+        </Section>
 
-        {/* --- MENU SECTION --- */}
-        <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Menu</Text>
+        <Section title="Menu">
           {menuItems.map(renderMenuItem)}
-        </View>
+        </Section>
 
-        {/* --- LOGOUT BUTTON --- */}
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={() => setShowLogoutModal(true)}
-        >
-          <Ionicons name="log-out-outline" size={22} color={COLORS.error} />
-          <Text style={styles.logoutText}>Log Out</Text>
-        </TouchableOpacity>
+        <View style={styles.logoutContainer}>
+          <Button
+            title="Log Out"
+            onPress={() => setShowLogoutModal(true)}
+            variant="danger"
+            icon="log-out-outline"
+            iconPosition="left"
+            style={styles.logoutButton}
+          />
+        </View>
 
         {/* --- APP VERSION --- */}
         <Text style={styles.versionText}>Anchor Wallet v1.0.0</Text>
@@ -339,94 +319,53 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FA',
   },
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
-    paddingBottom: 100,
+    paddingBottom: spacing['2xl'] * 2.5,
   },
-  header: {
-    backgroundColor: COLORS.primary,
-    height: 220,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    paddingHorizontal: 24,
-    paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 20 : 60,
-    alignItems: 'flex-start',
-  },
-  topNav: {
+  cardHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  appName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  notificationBtn: {
-    position: 'relative',
-    padding: 4,
-  },
-  notificationDot: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'red',
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-  },
-  identityCard: {
-    backgroundColor: COLORS.white,
-    marginHorizontal: 24,
-    marginTop: -60,
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 5,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   avatarContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: scale(60),
+    height: scale(60),
+    borderRadius: scale(30),
     backgroundColor: COLORS.grey,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: spacing.md,
   },
   avatarText: {
-    fontSize: 24,
+    fontSize: fontSize['2xl'],
   },
   userInfo: {
     flex: 1,
   },
   userName: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
     fontWeight: 'bold',
     color: COLORS.textDark,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   didContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   userDid: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: COLORS.textGrey,
   },
   editButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
     backgroundColor: `${COLORS.primary}10`,
     justifyContent: 'center',
     alignItems: 'center',
@@ -437,45 +376,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
-    paddingTop: 20,
-    marginTop: 20,
+    paddingTop: spacing.md,
+    marginTop: spacing.md,
   },
   statItem: {
     alignItems: 'center',
   },
   statNumber: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
     fontWeight: 'bold',
     color: COLORS.textDark,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: COLORS.textGrey,
   },
   statDivider: {
     width: 1,
-    height: 30,
+    height: scale(30),
     backgroundColor: COLORS.border,
-  },
-  settingsSection: {
-    backgroundColor: COLORS.white,
-    marginHorizontal: 24,
-    marginTop: 24,
-    borderRadius: 16,
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.textDark,
-    marginBottom: 16,
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
@@ -484,69 +410,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   settingTextContainer: {
-    marginLeft: 12,
+    marginLeft: spacing.sm,
   },
   settingTitle: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: '600',
     color: COLORS.textDark,
   },
   settingSubtitle: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: COLORS.textGrey,
-    marginTop: 2,
-  },
-  menuSection: {
-    backgroundColor: COLORS.white,
-    marginHorizontal: 24,
-    marginTop: 24,
-    borderRadius: 16,
-    padding: 20,
+    marginTop: scale(2),
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
   menuIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(12),
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.sm,
   },
   menuText: {
     flex: 1,
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: COLORS.textDark,
   },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.white,
-    marginHorizontal: 24,
-    marginTop: 24,
-    padding: 18,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: COLORS.errorLight,
+  logoutContainer: {
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.lg,
   },
-  logoutText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.error,
-    marginLeft: 12,
+  logoutButton: {
+    // Don't override backgroundColor, let Button component handle it
   },
   versionText: {
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: COLORS.textGrey,
-    marginTop: 24,
-    marginBottom: 40,
+    marginTop: spacing.lg,
+    marginBottom: spacing['2xl'],
   },
   modalOverlay: {
     flex: 1,

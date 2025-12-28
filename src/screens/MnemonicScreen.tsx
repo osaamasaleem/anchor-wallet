@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Logo from '../../assets/images/logo.svg'; 
+import Logo from '../../assets/images/logo.svg';
 import { 
   StyleSheet, 
   View, 
@@ -10,17 +10,10 @@ import {
   Alert 
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
-// Ideally, replace this with an Icon from @expo/vector-icons
-import { Ionicons } from '@expo/vector-icons'; 
-
-// --- COLOR PALETTE ---
-const COLORS = {
-  primary: '#311F5A', 
-  white: '#FFFFFF',
-  accent: '#FFD700', // Gold/Yellow for warning
-  grey: '#F1F3F6',
-  disabled: '#A0A0A0',
-};
+import { Ionicons } from '@expo/vector-icons';
+import COLORS from '../../constants/colors';
+import { scale, fontSize, spacing } from '../../utils/responsive';
+import { Button } from '../../components/Button';
 
 // --- DUMMY DATA (12 WORDS) ---
 // In the real app, this comes from ethers.Wallet.createRandom()
@@ -92,13 +85,12 @@ export default function MnemonicScreen({ navigation }: any) {
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
 
 
-      {/* --- YOUR LOGO (NOW WHITE) --- */}
-            <Logo 
-              width={144.05} 
-              height={159.29} 
-              style={styles.logo} 
-              fill={COLORS.white} 
-            />
+      <Logo 
+        width={scale(144.05)} 
+        height={scale(159.29)} 
+        style={styles.logo} 
+        fill={COLORS.white} 
+      />
 
 
 
@@ -137,17 +129,17 @@ export default function MnemonicScreen({ navigation }: any) {
         </Text>
       </View>
 
-      {/* --- CONTINUE BUTTON (Bottom) --- */}
       <View style={styles.footer}>
-        <TouchableOpacity 
-          style={[styles.button, isButtonDisabled && styles.buttonDisabled]} 
+        <Button
+          title={isButtonDisabled ? `Wait ${countdown}s` : "I have written it down"}
           onPress={handleContinue}
           disabled={isButtonDisabled}
-        >
-          <Text style={[styles.buttonText, isButtonDisabled && styles.buttonTextDisabled]}>
-            {isButtonDisabled ? `Wait ${countdown}s` : "I have written it down"}
-          </Text>
-        </TouchableOpacity>
+          variant="outline"
+          style={[
+            { backgroundColor: COLORS.white, borderColor: COLORS.white },
+            isButtonDisabled && { opacity: 0.5 }
+          ]}
+        />
       </View>
     </View>
   );
@@ -157,111 +149,93 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.primary,
-    paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingHorizontal: spacing.lg,
+    paddingTop: scale(60),
   },
   logo: {
-    marginLeft: -35,
-    marginBottom: 20,
+    marginLeft: scale(-35),
+    marginBottom: spacing.md,
   },
   header: {
-    marginBottom: 30,
+    marginBottom: spacing.xl,
     alignItems: 'center',
   },
   title: {
-    fontSize: 30,
+    fontSize: fontSize['2xl'],
     fontWeight: 'bold',
     color: COLORS.white,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: COLORS.white,
     opacity: 0.8,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: scale(22),
   },
   gridContainer: {
-    marginBottom: 20,
+    marginBottom: spacing.md,
   },
   row: {
     justifyContent: 'space-between',
-    marginBottom: 12, // Vertical spacing between rows
+    marginBottom: spacing.sm,
   },
   wordBadge: {
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 8,
-    width: '31%', // Fits 3 items with space
-    paddingVertical: 10,
-    paddingHorizontal: 5,
+    borderRadius: scale(8),
+    width: '31%',
+    paddingVertical: scale(10),
+    paddingHorizontal: scale(5),
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
   wordNumber: {
     color: 'rgba(255, 255, 255, 0.5)',
-    fontSize: 12,
-    marginRight: 6,
+    fontSize: fontSize.sm,
+    marginRight: scale(6),
   },
   wordText: {
     color: COLORS.white,
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: '600',
   },
   copyButton: {
     alignSelf: 'center',
-    marginBottom: 40,
-    padding: 10,
+    marginBottom: spacing['2xl'],
+    padding: scale(10),
   },
   copyText: {
     color: COLORS.white,
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: 'bold',
     textDecorationLine: 'underline',
   },
   warningContainer: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 215, 0, 0.15)', // Transparent Yellow
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    padding: spacing.md,
+    borderRadius: scale(12),
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: 'rgba(255, 215, 0, 0.5)',
   },
   warningIcon: {
-    fontSize: 24,
-    marginRight: 12,
+    fontSize: fontSize['2xl'],
+    marginRight: spacing.sm,
   },
   warningText: {
     color: COLORS.white,
-    fontSize: 14,
+    fontSize: fontSize.base,
     flex: 1,
     fontWeight: '500',
   },
   footer: {
-    marginTop: 'auto', // Pushes button to bottom
-    marginBottom: 40,
-  },
-  button: {
-    backgroundColor: COLORS.white,
-    height: 56,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonDisabled: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  buttonText: {
-    color: COLORS.primary,
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  buttonTextDisabled: {
-    color: 'rgba(255, 255, 255, 0.5)',
+    marginTop: 'auto',
+    marginBottom: spacing['2xl'],
   },
 });

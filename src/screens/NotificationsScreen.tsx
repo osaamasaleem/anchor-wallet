@@ -6,33 +6,16 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  StatusBar,
   FlatList,
   Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-
-// --- COLOR PALETTE ---
-const COLORS = {
-  primary: '#311F5A',
-  secondary: '#4C35AA',
-  white: '#FFFFFF',
-  grey: '#F1F3F6',
-  lightGrey: '#F8F9FA',
-  textDark: '#1A202C',
-  textGrey: '#718096',
-  success: '#22543D',
-  successLight: '#C6F6D5',
-  warning: '#B45309',
-  warningLight: '#FEF3C7',
-  error: '#DC2626',
-  errorLight: '#FEE2E2',
-  shadow: '#000000',
-  border: '#E0E0E0',
-  info: '#2563EB',
-  infoLight: '#DBEAFE',
-};
+import COLORS from '../../constants/colors';
+import { scale, fontSize, spacing } from '../../utils/responsive';
+import { AppHeader } from '../../components/AppHeader';
+import { FloatingCard } from '../../components/FloatingCard';
+import { Section } from '../../components/Section';
 
 // --- NOTIFICATION TYPES ---
 type NotificationType = 'verification' | 'credential' | 'security' | 'system';
@@ -193,7 +176,7 @@ export default function NotificationsScreen() {
       >
         <View style={styles.notificationLeft}>
           <View style={[styles.iconContainer, { backgroundColor: `${color}20` }]}>
-            <Ionicons name={icon as any} size={22} color={color} />
+            <Ionicons name={icon as any} size={scale(22)} color={color} />
           </View>
           <View style={styles.notificationContent}>
             <Text style={styles.notificationTitle}>{item.title}</Text>
@@ -222,24 +205,19 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
-      
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent} 
+        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
+      >
+        <AppHeader 
+          title="Notifications" 
+          showBackButton={true}
+          showNotifications={false}
+          onBackPress={() => navigation.goBack()}
+        />
         
-        {/* --- HEADER SECTION --- */}
-        <View style={styles.header}>
-          {/* Top Navigation Row */}
-          <View style={styles.topNav}>
-            <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={24} color={COLORS.white} />
-            </TouchableOpacity>
-            <Text style={styles.appName}>Notifications</Text>
-            <TouchableOpacity style={styles.emptyButton} />
-          </View>
-        </View>
-
-        {/* --- NOTIFICATIONS STATS CARD --- */}
-        <View style={styles.statsCard}>
+        <FloatingCard offset={-60}>
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>
@@ -267,7 +245,7 @@ export default function NotificationsScreen() {
               style={styles.quickActionButton}
               onPress={markAllAsRead}
             >
-              <Ionicons name="checkmark-done" size={20} color={COLORS.primary} />
+              <Ionicons name="checkmark-done" size={scale(20)} color={COLORS.primary} />
               <Text style={styles.quickActionText}>Mark All Read</Text>
             </TouchableOpacity>
             
@@ -275,17 +253,13 @@ export default function NotificationsScreen() {
               style={styles.quickActionButton}
               onPress={clearAllNotifications}
             >
-              <Ionicons name="trash-outline" size={20} color={COLORS.error} />
+              <Ionicons name="trash-outline" size={scale(20)} color={COLORS.error} />
               <Text style={[styles.quickActionText, { color: COLORS.error }]}>Clear All</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </FloatingCard>
 
-        {/* --- NOTIFICATIONS LIST --- */}
-        <View style={styles.notificationsSection}>
-          <Text style={styles.sectionTitle}>
-            Recent Notifications
-          </Text>
+        <Section title="Recent Notifications" showBackground={false} containerStyle={styles.notificationsSection}>
           
           {notifications.length > 0 ? (
             <FlatList
@@ -298,43 +272,41 @@ export default function NotificationsScreen() {
             />
           ) : (
             <View style={styles.emptyContainer}>
-              <Ionicons name="notifications-off-outline" size={64} color={COLORS.grey} />
+              <Ionicons name="notifications-off-outline" size={scale(64)} color={COLORS.grey} />
               <Text style={styles.emptyTitle}>No Notifications</Text>
               <Text style={styles.emptyText}>
                 You're all caught up! New notifications will appear here.
               </Text>
             </View>
           )}
-        </View>
+        </Section>
 
-        {/* --- NOTIFICATION SETTINGS --- */}
-        <View style={styles.settingsSection}>
-          <Text style={styles.sectionTitle}>Notification Settings</Text>
+        <Section title="Notification Settings">
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Ionicons name="document-text-outline" size={22} color={COLORS.primary} />
+              <Ionicons name="document-text-outline" size={scale(22)} color={COLORS.primary} />
               <Text style={styles.settingText}>Credential Notifications</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={COLORS.textGrey} />
+            <Ionicons name="chevron-forward" size={scale(20)} color={COLORS.textGrey} />
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Ionicons name="shield-checkmark-outline" size={22} color={COLORS.primary} />
+              <Ionicons name="shield-checkmark-outline" size={scale(22)} color={COLORS.primary} />
               <Text style={styles.settingText}>Verification Alerts</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={COLORS.textGrey} />
+            <Ionicons name="chevron-forward" size={scale(20)} color={COLORS.textGrey} />
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Ionicons name="alert-circle-outline" size={22} color={COLORS.primary} />
+              <Ionicons name="alert-circle-outline" size={scale(22)} color={COLORS.primary} />
               <Text style={styles.settingText}>Security Alerts</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={COLORS.textGrey} />
+            <Ionicons name="chevron-forward" size={scale(20)} color={COLORS.textGrey} />
           </TouchableOpacity>
-        </View>
+        </Section>
       </ScrollView>
     </View>
   );
@@ -345,116 +317,67 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F8F9FA',
   },
+  scrollView: {
+    flex: 1,
+  },
   scrollContent: {
-    paddingBottom: 100,
-  },
-  header: {
-    backgroundColor: COLORS.primary,
-    height: 220,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    paddingHorizontal: 24,
-    paddingTop: StatusBar.currentHeight ? StatusBar.currentHeight + 20 : 60,
-    alignItems: 'flex-start',
-  },
-  topNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  appName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
-  emptyButton: {
-    width: 40,
-  },
-  statsCard: {
-    backgroundColor: COLORS.white,
-    marginHorizontal: 24,
-    marginTop: -60,
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 5,
+    paddingTop: 0, // No padding - FloatingCard will overlap header
+    paddingBottom: spacing['2xl'] * 2.5,
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing.md,
   },
   statItem: {
     alignItems: 'center',
     flex: 1,
   },
   statNumber: {
-    fontSize: 24,
+    fontSize: fontSize['2xl'],
     fontWeight: 'bold',
     color: COLORS.textDark,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: COLORS.textGrey,
   },
   statDivider: {
     width: 1,
-    height: 40,
+    height: scale(40),
     backgroundColor: COLORS.border,
   },
   quickActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingTop: 16,
+    paddingTop: spacing.md,
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
   },
   quickActionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
+    padding: spacing.sm,
+    borderRadius: scale(8),
     backgroundColor: COLORS.lightGrey,
   },
   quickActionText: {
-    marginLeft: 8,
-    fontSize: 14,
+    marginLeft: spacing.sm,
+    fontSize: fontSize.base,
     fontWeight: '600',
     color: COLORS.primary,
   },
   notificationsSection: {
-    backgroundColor: COLORS.white,
-    marginHorizontal: 24,
-    marginTop: 24,
-    borderRadius: 16,
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.textDark,
-    marginBottom: 20,
+    paddingHorizontal: spacing.lg,
+    marginTop: spacing.lg,
   },
   notificationItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 16,
+    paddingVertical: spacing.md,
   },
   unreadNotification: {
     backgroundColor: `${COLORS.primary}05`,
@@ -465,89 +388,81 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(12),
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing.sm,
   },
   notificationContent: {
     flex: 1,
   },
   notificationTitle: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     fontWeight: '600',
     color: COLORS.textDark,
-    marginBottom: 4,
+    marginBottom: spacing.xs,
   },
   notificationMessage: {
-    fontSize: 14,
+    fontSize: fontSize.base,
     color: COLORS.textGrey,
-    lineHeight: 18,
-    marginBottom: 4,
+    lineHeight: scale(18),
+    marginBottom: spacing.xs,
   },
   notificationTime: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     color: COLORS.textGrey,
     opacity: 0.7,
   },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: scale(8),
+    height: scale(8),
+    borderRadius: scale(4),
     backgroundColor: COLORS.primary,
-    marginLeft: 12,
+    marginLeft: spacing.sm,
   },
   actionButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    marginLeft: 12,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: scale(6),
+    borderRadius: scale(8),
+    marginLeft: spacing.sm,
   },
   actionText: {
-    fontSize: 12,
+    fontSize: fontSize.sm,
     fontWeight: '600',
   },
   separator: {
     height: 1,
     backgroundColor: COLORS.border,
-    marginVertical: 4,
+    marginVertical: spacing.xs,
   },
   listFooter: {
-    height: 10,
+    height: scale(10),
   },
   emptyContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 40,
+    paddingVertical: spacing['2xl'],
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: fontSize.lg,
     fontWeight: 'bold',
     color: COLORS.textGrey,
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: spacing.md,
+    marginBottom: spacing.sm,
   },
   emptyText: {
-    fontSize: 14,
+    fontSize: fontSize.base,
     color: COLORS.textGrey,
     textAlign: 'center',
-    paddingHorizontal: 40,
-  },
-  settingsSection: {
-    backgroundColor: COLORS.white,
-    marginHorizontal: 24,
-    marginTop: 24,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 40,
+    paddingHorizontal: spacing['2xl'],
   },
   settingItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
   },
@@ -556,8 +471,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   settingText: {
-    fontSize: 16,
+    fontSize: fontSize.md,
     color: COLORS.textDark,
-    marginLeft: 12,
+    marginLeft: spacing.sm,
   },
 });

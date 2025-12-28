@@ -1,16 +1,10 @@
 import { StyleSheet, View, Text, StatusBar, ActivityIndicator } from 'react-native';
-import Logo from '../../assets/images/logo.svg'; // Your SVG Logo
+import Logo from '../../assets/images/logo.svg';
 import { useEffect } from 'react';
-
-// --- Import navigation types ---
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
-
-// --- THIS IS YOUR COLOR PALETTE ---
-const COLORS = {
-  primary: '#311F5A', // Your Deep Purple
-  white: '#FFFFFF',
-};
+import { RootStackParamList } from '../types/navigation';
+import COLORS from '../../constants/colors';
+import { scale, fontSize, spacing } from '../../utils/responsive';
 
 // --- Define the navigation prop type ---
 type SplashScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Splash'>;
@@ -39,21 +33,16 @@ export default function SplashScreen({ navigation }: Props) {
       {/* This makes the top status bar translucent (draws under it) */}
       <StatusBar barStyle="light-content" translucent={true} backgroundColor="transparent"/>
 
-      {/* --- YOUR LOGO (FROM FIGMA) --- */}
       <Logo 
-        width={100} // Based on your "Anchor Wallet" logo design
-        height={100} // Based on your "Anchor Wallet" logo design
-        fill={COLORS.white} // Forces the SVG to be white
+        width={scale(100)}
+        height={scale(100)}
+        fill={COLORS.white}
         style={styles.logo}
       />
 
-      {/* --- APP NAME --- */}
       <Text style={styles.title}>Anchor Wallet</Text>
-
-      {/* --- TAGLINE --- */}
       <Text style={styles.subtitle}>Your Credentials, Secured</Text>
 
-      {/* --- LOADING INDICATOR --- */}
       <ActivityIndicator 
         size="small" 
         color={COLORS.white} 
@@ -63,32 +52,31 @@ export default function SplashScreen({ navigation }: Props) {
   );
 }
 
-// --- STYLESHEET ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.primary,
-    justifyContent: 'center', // Centers everything
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 34, 
+    paddingHorizontal: spacing.lg,
   },
   logo: {
-    marginBottom: 24,
+    marginBottom: spacing.lg,
   },
   title: {
-    fontSize: 32, // Based on your Figma design
+    fontSize: fontSize['3xl'],
     fontWeight: 'bold',
     color: COLORS.white,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16, // Based on your Figma design
+    fontSize: fontSize.md,
     color: COLORS.white,
     opacity: 0.8,
     textAlign: 'center',
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   spinner: {
-    marginTop: 40, // Space between tagline and spinner
+    marginTop: spacing['2xl'],
   },
 });

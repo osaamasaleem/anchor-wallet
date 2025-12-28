@@ -13,25 +13,13 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../navigation/AppNavigator';
-
-// --- COLOR PALETTE ---
-const COLORS = {
-  primary: '#311F5A',
-  secondary: '#4C35AA',
-  white: '#FFFFFF',
-  black: '#000000',
-  grey: '#F1F3F6',
-  lightGrey: '#F8F9FA',
-  textDark: '#1A202C',
-  textGrey: '#718096',
-  success: '#22543D',
-  error: '#DC2626',
-  overlay: 'rgba(0, 0, 0, 0.7)',
-  scanner: '#00FF00',
-};
+import { RootStackParamList } from '../types/navigation';
+import COLORS from '../../constants/colors';
+import { scale, fontSize, spacing } from '../../utils/responsive';
 
 type QRScannerScreenNavigationProp = StackNavigationProp<RootStackParamList, 'MainApp'>;
+
+const SCANNER_COLOR = '#00FF00';
 
 export default function QRScannerScreen() {
   const navigation = useNavigation<QRScannerScreenNavigationProp>();
@@ -140,7 +128,7 @@ export default function QRScannerScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.permissionContainer}>
-        <Ionicons name="camera-off" size={64} color={COLORS.textGrey} />
+        <Ionicons name="camera-off" size={scale(64)} color={COLORS.textGrey} />
         <Text style={styles.permissionTitle}>Camera Access Required</Text>
         <Text style={styles.permissionText}>
           Anchor Wallet needs camera access to scan QR codes for credentials.
@@ -171,7 +159,7 @@ export default function QRScannerScreen() {
           {/* Top Bar */}
           <View style={styles.topBar}>
             <TouchableOpacity style={styles.closeButton} onPress={() => navigation.goBack()}>
-              <Ionicons name="close" size={28} color={COLORS.white} />
+              <Ionicons name="close" size={scale(28)} color={COLORS.white} />
             </TouchableOpacity>
             <Text style={styles.title}>Scan QR Code</Text>
             <View style={styles.placeholder} />
@@ -202,7 +190,7 @@ export default function QRScannerScreen() {
             <TouchableOpacity style={styles.controlButton} onPress={toggleTorch}>
               <Ionicons
                 name={torchOn ? "flashlight" : "flashlight-outline"}
-                size={28}
+                size={scale(28)}
                 color={COLORS.white}
               />
               <Text style={styles.controlButtonText}>{torchOn ? 'Flash On' : 'Flash'}</Text>
@@ -216,7 +204,7 @@ export default function QRScannerScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.controlButton} onPress={toggleCamera}>
-              <Ionicons name="camera-reverse" size={28} color={COLORS.white} />
+              <Ionicons name="camera-reverse" size={scale(28)} color={COLORS.white} />
               <Text style={styles.controlButtonText}>Flip</Text>
             </TouchableOpacity>
           </View>
@@ -316,7 +304,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderTopWidth: 4,
     borderLeftWidth: 4,
-    borderColor: COLORS.scanner,
+    borderColor: SCANNER_COLOR,
   },
   frameTopRight: {
     position: 'absolute',
@@ -326,7 +314,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderTopWidth: 4,
     borderRightWidth: 4,
-    borderColor: COLORS.scanner,
+    borderColor: SCANNER_COLOR,
   },
   frameBottomLeft: {
     position: 'absolute',
@@ -336,7 +324,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderBottomWidth: 4,
     borderLeftWidth: 4,
-    borderColor: COLORS.scanner,
+    borderColor: SCANNER_COLOR,
   },
   frameBottomRight: {
     position: 'absolute',
@@ -346,7 +334,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderBottomWidth: 4,
     borderRightWidth: 4,
-    borderColor: COLORS.scanner,
+    borderColor: SCANNER_COLOR,
   },
   scannerLine: {
     position: 'absolute',
@@ -354,8 +342,8 @@ const styles = StyleSheet.create({
     left: 10,
     right: 10,
     height: 2,
-    backgroundColor: COLORS.scanner,
-    shadowColor: COLORS.scanner,
+    backgroundColor: SCANNER_COLOR,
+    shadowColor: SCANNER_COLOR,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
     shadowRadius: 10,
