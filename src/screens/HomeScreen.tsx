@@ -1,5 +1,4 @@
-// src/screens/HomeScreen.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,6 +7,9 @@ import {
   ScrollView,
   Share,
   Alert,
+  ActivityIndicator,
+  Clipboard,
+  RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -19,6 +21,10 @@ import { FloatingCard } from '../../components/FloatingCard';
 import { CredentialCard } from '../../components/CredentialCard';
 import { Section } from '../../components/Section';
 
+// CRYPTO & STORAGE IMPORTS
+import * as SecureStore from 'expo-secure-store';
+import { ethers } from 'ethers';
+
 type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'HomeMain'>;
 
 type Props = {
@@ -26,22 +32,78 @@ type Props = {
 };
 
 export default function HomeScreen({ navigation }: Props) {
-  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
+  const [refreshing, setRefreshing] = useState(false); // New state
 
-  const handleShareID = () => {
-    const userDID = "did:ethr:0x12...34";
-    Share.share({
-      message: `Connect with me on Anchor Wallet! My Decentralized Identity: ${userDID}`,
-      title: 'Share my Digital Identity',
-    })
-      .then((result) => {
-        if (result.action === Share.sharedAction) {
-          Alert.alert('Shared successfully!');
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    await loadUserIdentity(); // Re-run the sync logic
+    setRefreshing(false);
+  }, []);
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(true);
+  
+  // --- STATE MANAGEMENT ---
+  const [userData, setUserData] = useState({ name: 'Anchor User', did: 'did:ethr:0x...' });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isOffline, setIsOffline] = useState(false);
+
+  useEffect(() => {
+    loadUserIdentity();
+  }, []);
+
+  const loadUserIdentity = async () => {
+    try {
+      setIsOffline(false);
+      setIsLoading(true);
+
+      // 1. Get the Identity from LOCAL storage first
+      const storedData = await SecureStore.getItemAsync('user_identity');
+      
+      if (storedData) {
+        const { privateKey } = JSON.parse(storedData);
+        
+        // 2. Derive the Wallet and DID locally (This must happen BEFORE fetch)
+        const wallet = new ethers.Wallet(privateKey);
+        const currentDid = `did:ethr:${wallet.address}`;
+
+        // Set local DID immediately so UI is populated
+        setUserData(prev => ({ ...prev, did: currentDid }));
+
+        // 3. Setup Server Call with 5-Second Timer
+        const API_URL = 'http://192.168.18.112:5000'; 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); 
+
+        // 4. Perform the Fetch
+        const response = await fetch(`${API_URL}/api/users/${currentDid}`, {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        const data = await response.json();
+
+        if (response.ok) {
+          setUserData({ name: data.name, did: data.did });
+          setIsOffline(false);
+          console.log("✅ Profile Synced Successfully");
+        } else {
+          console.log("⚠️ User found locally but not in Backend DB");
+          setIsOffline(true);
         }
-      })
-      .catch((error) => {
-        Alert.alert('Error', 'Failed to share: ' + error.message);
-      });
+      } else {
+        console.log("❌ No identity found in SecureStore");
+      }
+      
+    } catch (error) {
+      console.log("🏠 Home Load Result: Operating in Offline Mode.");
+      setIsOffline(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const formatDID = (did: string) => {
+    if (did.length < 20) return did;
+    return `${did.slice(0, 15)}...${did.slice(-4)}`;
   };
 
   const recentCredentials = [
@@ -57,20 +119,7 @@ export default function HomeScreen({ navigation }: Props) {
       category: 'education' as const,
       logo: '🏛️',
       color: '#4F46E5',
-    },
-    {
-      id: '2',
-      title: 'React Native Certification',
-      issuer: 'Udemy',
-      issueDate: '2023-10-01',
-      expiryDate: '2025-10-01',
-      type: 'Professional Certification',
-      status: 'valid' as const,
-      verified: true,
-      category: 'professional' as const,
-      logo: '🎓',
-      color: '#06B6D4',
-    },
+    }
   ];
 
   return (
@@ -79,6 +128,14 @@ export default function HomeScreen({ navigation }: Props) {
         contentContainerStyle={styles.scrollContent} 
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}
+        refreshControl={
+    <RefreshControl 
+      refreshing={refreshing} 
+      onRefresh={onRefresh} 
+      tintColor={COLORS.primary} // iOS Spinner Color
+      colors={[COLORS.primary]} // Android Spinner Color
+    />
+  }
       >
         <AppHeader 
           title="Anchor" 
@@ -91,19 +148,34 @@ export default function HomeScreen({ navigation }: Props) {
         <FloatingCard offset={-60}>
           <View style={styles.cardHeader}>
             <View style={styles.avatarContainer}>
-              <Ionicons name="person" size={scale(30)} color={COLORS.primary} />
+              {isLoading ? (
+                <ActivityIndicator color={COLORS.primary} />
+              ) : (
+                <Ionicons name="person" size={scale(30)} color={COLORS.primary} />
+              )}
             </View>
             <View style={styles.userInfo}>
-              <Text style={styles.userName}>Usama Saleem</Text>
+              <Text style={styles.userName}>{userData.name}</Text>
               <View style={styles.didContainer}>
-                <Text style={styles.userDid}>did:ethr:0x12...34</Text>
-                <TouchableOpacity>
+                <Text style={styles.userDid}>{formatDID(userData.did)}</Text>
+                <TouchableOpacity onPress={() => {
+                  Clipboard.setString(userData.did);
+                  Alert.alert("Copied!", "DID copied to clipboard");
+                }}>
                   <Ionicons name="copy-outline" size={scale(14)} color={COLORS.textGrey} style={{ marginLeft: spacing.xs }} />
                 </TouchableOpacity>
               </View>
             </View>
-            <View style={styles.verifiedBadge}>
-              <Text style={styles.verifiedText}>Verified</Text>
+            <View style={[
+              styles.verifiedBadge, 
+              { backgroundColor: isOffline ? '#FEE2E2' : COLORS.successLight }
+            ]}>
+              <Text style={[
+                styles.verifiedText, 
+                { color: isOffline ? '#EF4444' : COLORS.success }
+              ]}>
+                {isLoading ? 'Syncing...' : (isOffline ? 'Offline' : 'Verified')}
+              </Text>
             </View>
           </View>
         </FloatingCard>
@@ -121,7 +193,7 @@ export default function HomeScreen({ navigation }: Props) {
 
           <TouchableOpacity 
             style={styles.actionButton}
-            onPress={handleShareID}
+            onPress={() => Share.share({ message: `My Anchor DID: ${userData.did}` })}
           >
             <View style={[styles.iconCircle, { backgroundColor: '#E0F2F1' }]}>
               <Ionicons name="share-social-outline" size={scale(32)} color={COLORS.primary} />
@@ -148,95 +220,29 @@ export default function HomeScreen({ navigation }: Props) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingTop: 0, // No padding - FloatingCard will overlap header
-    paddingBottom: spacing['2xl'] * 2.5,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  container: { flex: 1, backgroundColor: '#F8F9FA' },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingTop: 0, paddingBottom: spacing['2xl'] * 2.5 },
+  cardHeader: { flexDirection: 'row', alignItems: 'center' },
   avatarContainer: {
-    width: scale(60),
-    height: scale(60),
-    borderRadius: scale(30),
-    backgroundColor: COLORS.grey,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing.md,
+    width: scale(60), height: scale(60), borderRadius: scale(30),
+    backgroundColor: COLORS.grey, justifyContent: 'center', alignItems: 'center', marginRight: spacing.md,
   },
-  userInfo: {
-    flex: 1,
-  },
-  userName: {
-    fontSize: fontSize.lg,
-    fontWeight: 'bold',
-    color: COLORS.textDark,
-    marginBottom: spacing.xs,
-  },
-  didContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  userDid: {
-    fontSize: fontSize.sm,
-    color: COLORS.textGrey,
-  },
+  userInfo: { flex: 1 },
+  userName: { fontSize: fontSize.lg, fontWeight: 'bold', color: COLORS.textDark, marginBottom: spacing.xs },
+  didContainer: { flexDirection: 'row', alignItems: 'center' },
+  userDid: { fontSize: fontSize.sm, color: COLORS.textGrey },
   verifiedBadge: {
-    backgroundColor: COLORS.successLight,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: scale(12),
-    position: 'absolute',
-    top: 0,
-    right: 0,
+    paddingHorizontal: spacing.sm, paddingVertical: spacing.xs,
+    borderRadius: scale(12), position: 'absolute', top: -5, right: -5,
   },
-  verifiedText: {
-    color: COLORS.success,
-    fontSize: fontSize.xs,
-    fontWeight: 'bold',
-  },
-  actionsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.lg,
-    marginTop: spacing.lg,
-  },
+  verifiedText: { fontSize: fontSize.xs, fontWeight: 'bold' },
+  actionsContainer: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: spacing.lg },
   actionButton: {
-    backgroundColor: COLORS.white,
-    width: '47%',
-    paddingVertical: spacing.md,
-    borderRadius: scale(16),
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: COLORS.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: scale(8),
-    elevation: 2,
+    backgroundColor: COLORS.white, width: '47%', paddingVertical: spacing.md, borderRadius: scale(16),
+    alignItems: 'center', justifyContent: 'center', shadowColor: COLORS.shadow, elevation: 2,
   },
-  iconCircle: {
-    width: scale(60),
-    height: scale(60),
-    borderRadius: scale(30),
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  actionText: {
-    fontSize: fontSize.md,
-    fontWeight: '600',
-    color: COLORS.primary,
-  },
-  recentSection: {
-    paddingHorizontal: spacing.lg,
-    marginTop: spacing.xl,
-  },
+  iconCircle: { width: scale(60), height: scale(60), borderRadius: scale(30), justifyContent: 'center', alignItems: 'center', marginBottom: spacing.sm },
+  actionText: { fontSize: fontSize.md, fontWeight: '600', color: COLORS.primary },
+  recentSection: { paddingHorizontal: spacing.lg, marginTop: spacing.xl },
 });

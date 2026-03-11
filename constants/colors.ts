@@ -20,7 +20,7 @@ export const COLORS = {
   textGrey: '#718096',
   
   // Status Colors
-  success: '#22543D',
+  success: '#54222eff',
   successLight: '#C6F6D5',
   warning: '#B45309',
   warningLight: '#FEF3C7',
@@ -37,7 +37,7 @@ export const COLORS = {
   // Category Colors
   education: '#4F46E5',
   professional: '#06B6D4',
-  government: '#10B981',
+  government: '#2f10b9ff',
   health: '#EF4444',
 };
 
