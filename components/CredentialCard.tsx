@@ -55,7 +55,7 @@ export const CredentialCard: React.FC<CredentialCardProps> = ({
           )}
         </View>
         {variant === 'compact' && credential.verified && (
-          <Ionicons name="checkmark-circle" size={scale(24)} color="green" />
+          <Ionicons name="checkmark-circle" size={scale(24)} color="blue" />
         )}
       </View>
       

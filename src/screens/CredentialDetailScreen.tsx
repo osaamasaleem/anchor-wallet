@@ -167,20 +167,11 @@ export default function CredentialDetailScreen() {
             onPress={() => Alert.alert('QR Code', 'Show QR code for this credential')}
             icon="qr-code-outline"
             iconPosition="left"
-            style={[styles.actionButton, { backgroundColor: '#10B981' }]}
+            style={[styles.actionButton, { backgroundColor: '#ce1818ff' }]}
           />
         </View>
 
-        <Section title="Technical Details">
-          <View style={styles.technicalInfo}>
-            <Text style={styles.technicalText}>Format: Verifiable Credential (VC)</Text>
-            <Text style={styles.technicalText}>Proof Type: Ed25519Signature2020</Text>
-            <Text style={styles.technicalText}>Issuer DID: did:ethr:{credential.issuer.substring(0, 20)}...</Text>
-            <Text style={styles.technicalText}>Holder DID: did:ethr:0x1234...5678</Text>
-            <Text style={styles.technicalText}>Created: {formatDate(credential.issueDate)}</Text>
-            <Text style={styles.technicalText}>Proof Purpose: assertion</Text>
-          </View>
-        </Section>
+        
 
         {/* --- APP VERSION / INFO --- */}
         <Text style={styles.infoText}>

@@ -1,25 +1,33 @@
-// This MUST be the very first line of your app
+// 1. Mandatory Polyfills (MUST be at the very top)
 import 'react-native-gesture-handler';
+import 'react-native-get-random-values';
+import { Buffer } from 'buffer';
+global.Buffer = Buffer; 
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import AppNavigator from './src/navigation/AppNavigator';
 import { StatusBar } from 'react-native';
+import AppNavigator from './src/navigation/AppNavigator';
 
-/**
- * This is the new root of your app.
- * It does nothing but load the NavigationContainer and your AppNavigator.
- */
+// 2. Import your identity service functions
+import { 
+  generateMnemonicPhrase, 
+  deriveIdentityFromMnemonic, 
+  saveIdentitySecurely, 
+  getStoredIdentity 
+} from './src/services/identityService';
+
 export default function App() {
+  
+  
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        {/* Set the default status bar style for the whole app */}
         <StatusBar barStyle="light-content" />
         <AppNavigator />
       </NavigationContainer>
     </SafeAreaProvider>
   );
 }
-

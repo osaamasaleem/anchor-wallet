@@ -1,11 +1,23 @@
-
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, StatusBar } from 'react-native';
+import React, { useState } from 'react';
+import { 
+  StyleSheet, 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StatusBar, 
+  Alert 
+} from 'react-native';
 import Logo from '../../assets/images/logo.svg';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../types/navigation';
 import COLORS from '../../constants/colors';
 import { scale, fontSize, spacing } from '../../utils/responsive';
 import { Button } from '../../components/Button';
+import { Ionicons } from '@expo/vector-icons';
+
+// --- TASK 10.5: IMPORT THE AUTH SERVICE ---
+import { AuthService } from '../services/authService';
 
 type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 
@@ -14,10 +26,25 @@ type Props = {
 };
 
 export default function LoginScreen({ navigation }: Props) {
+  const [email, setEmail] = useState('');
+
+  const handleDeviceUnlock = async () => {
+    // This triggers the phone's native Fingerprint/PIN prompt
+    const success = await AuthService.authenticateUser();
+    
+    if (success) {
+      // If the phone recognizes the user, let them in
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainApp' }],
+      });
+    } else {
+      Alert.alert("Authentication Failed", "Could not verify identity. Please try again.");
+    }
+  };
+
   return (
-    // Full-screen container
     <View style={styles.container}>
-      {/* This makes the top status bar translucent */}
       <StatusBar barStyle="light-content" translucent={true} backgroundColor="transparent" />
 
       <Logo 
@@ -27,35 +54,30 @@ export default function LoginScreen({ navigation }: Props) {
         fill={COLORS.white} 
       />
 
-      <Text style={styles.title}>Welcome</Text>
-      <Text style={styles.subtitle}>Sign in to continue</Text>
+      <Text style={styles.title}>Secure Access</Text>
+      <Text style={styles.subtitle}>Unlock your Anchor Wallet to manage your credentials.</Text>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Email Address"
-          placeholderTextColor="rgba(255, 255, 255, 0.5)"
-          style={styles.input}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          placeholder="Password"
-          placeholderTextColor="rgba(255, 255, 255, 0.5)"
-          style={styles.input}
-          secureTextEntry
-        />
-        <TouchableOpacity>
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
+      <View style={styles.unlockContainer}>
+        {/* Primary Action: Unlock using Device Security */}
+        <TouchableOpacity style={styles.biometricButton} onPress={handleDeviceUnlock}>
+          <View style={styles.iconBackground}>
+            <Ionicons name="finger-print" size={scale(50)} color={COLORS.primary} />
+          </View>
+          <Text style={styles.unlockText}>Unlock with Device Security</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.buttonContainer}>
-        <Button 
-          title="Sign In" 
-          onPress={() => navigation.navigate('MainApp')}
-          variant="outline"
-          style={[styles.signInButton, { backgroundColor: COLORS.white, borderColor: COLORS.white }]}
-        />
+      <View style={styles.dividerContainer}>
+        <View style={styles.line} />
+        <Text style={styles.dividerText}>OR</Text>
+        <View style={styles.line} />
+      </View>
+
+      <View style={styles.footer}>
+        {/* Secondary Action: Recovery (if user gets a new phone) */}
+        <TouchableOpacity onPress={() => navigation.navigate('Mnemonic')}>
+           <Text style={styles.recoverText}>Recover with Secret Phrase</Text>
+        </TouchableOpacity>
 
         <View style={styles.signUpRow}>
           <Text style={styles.signUpText}>New to Anchor? </Text>
@@ -83,42 +105,67 @@ const styles = StyleSheet.create({
     fontSize: fontSize['4xl'],
     fontWeight: 'bold',
     color: COLORS.white,
-    textAlign: 'left',
   },
   subtitle: {
     fontSize: fontSize.lg,
     color: COLORS.white,
     opacity: 0.8,
-    textAlign: 'left',
-    marginBottom: spacing.xl,
+    marginBottom: spacing['2xl'],
+    lineHeight: scale(24),
   },
-  inputContainer: {
-    width: '100%',
+  unlockContainer: {
+    alignItems: 'center',
+    marginVertical: spacing.xl,
   },
-  input: {
+  biometricButton: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: spacing.xl,
+    borderRadius: scale(20),
     width: '100%',
-    height: scale(50),
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.5)',
-    borderRadius: scale(8),
-    paddingHorizontal: spacing.md,
-    color: COLORS.white,
-    fontSize: fontSize.md,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  iconBackground: {
+    width: scale(90),
+    height: scale(90),
+    backgroundColor: COLORS.white,
+    borderRadius: scale(45),
+    justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: spacing.md,
   },
-  forgotPassword: {
-    fontSize: fontSize.base,
+  unlockText: {
     color: COLORS.white,
-    textAlign: 'right',
-    opacity: 0.8,
-    marginBottom: spacing.xl,
+    fontSize: fontSize.md,
+    fontWeight: '600',
   },
-  buttonContainer: {
-    width: '100%',
+  dividerContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
+    marginVertical: spacing.xl,
   },
-  signInButton: {
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  dividerText: {
+    color: COLORS.white,
+    paddingHorizontal: spacing.md,
+    opacity: 0.6,
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: 'auto',
+    marginBottom: spacing['2xl'],
+  },
+  recoverText: {
+    color: COLORS.white,
+    fontSize: fontSize.base,
+    textDecorationLine: 'underline',
     marginBottom: spacing.lg,
+    opacity: 0.9,
   },
   signUpRow: {
     flexDirection: 'row',
