@@ -75,7 +75,7 @@ export default function LoginScreen({ navigation }: Props) {
 
       <View style={styles.footer}>
         {/* Secondary Action: Recovery (if user gets a new phone) */}
-        <TouchableOpacity onPress={() => navigation.navigate('Mnemonic')}>
+        <TouchableOpacity onPress={() => navigation.navigate('MnemonicRecovery')}>
            <Text style={styles.recoverText}>Recover with Secret Phrase</Text>
         </TouchableOpacity>
 

@@ -15,13 +15,15 @@ import { scale, fontSize, spacing } from '../../utils/responsive';
 import { Button } from '../../components/Button';
 import { getMnemonicChallenge } from '../services/identityService';
 
+// ✅ IMPORT CENTRALIZED CONFIGURATION ENTITY
+import { API_BASE_URL } from '../config/api';
+
 export default function VerifyMnemonicScreen({ navigation, route }: any) {
   const { mnemonic, userData } = route.params;
   const [challenges, setChallenges] = useState<any[]>([]);
   const [selections, setSelections] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
-    // Initialize the challenge
     setChallenges(getMnemonicChallenge(mnemonic));
   }, []);
 
@@ -30,54 +32,49 @@ export default function VerifyMnemonicScreen({ navigation, route }: any) {
   };
 
   const handleFinalVerify = async () => {
-  const isComplete = challenges.every((c, i) => selections[i] === c.correctWord);
+    const isComplete = challenges.every((c, i) => selections[i] === c.correctWord);
 
-  if (isComplete) {
-    try {
-      // 1. Show a "Registering..." alert or spinner
-      console.log("Attempting to register on backend...");
+    if (isComplete) {
+      try {
+        console.log(`Attempting registration handshake to: ${API_BASE_URL}`);
 
-      // 2. The API Call
-      // REPLACE with your laptop's IP if using a physical phone!
-      const API_URL = Platform.OS === 'android' ? 'http://192.168.18.112:5000' : 'http://localhost:5000';
+        // Clean, direct backend fetch calling our central API rule set 
+        const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: userData.name,
+            email: userData.email,
+            did: userData.did
+          }),
+        });
 
-      const response = await fetch(`${API_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: userData.name,
-          email: userData.email,
-          did: userData.did
-        }),
-      });
+        const data = await response.json();
 
-      const data = await response.json();
-
-      if (response.ok) {
-        Alert.alert(
-          "Success!", 
-          "Identity Secured & Registered. Please sign in to access your wallet.",
-          [{ text: "OK", onPress: () => {
-              // Redirect to Login instead of MainApp
-              navigation.reset({
-                index: 0,
-                routes: [{ name: 'Login' }], 
-              });
-          }}]
-        );
-      } else {
-        Alert.alert("Registration Error", data.message || "Something went wrong.");
+        if (response.ok) {
+          Alert.alert(
+            "Success!", 
+            "Identity Secured & Registered. Please sign in to access your wallet.",
+            [{ text: "OK", onPress: () => {
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'Login' }], 
+                });
+            }}]
+          );
+        } else {
+          Alert.alert("Registration Error", data.message || "Something went wrong.");
+        }
+      } catch (error) {
+        console.error("Connection Error:", error);
+        Alert.alert("Network Error", "Could not connect to AnchorBackend. Is the server running?");
       }
-    } catch (error) {
-      console.error("Connection Error:", error);
-      Alert.alert("Network Error", "Could not connect to AnchorBackend. Is the server running?");
+    } else {
+      Alert.alert("Incorrect", "One or more words are wrong. Please check your phrase again.");
     }
-  } else {
-    Alert.alert("Incorrect", "One or more words are wrong. Please check your phrase again.");
-  }
-};
+  };
 
   return (
     <View style={styles.container}>

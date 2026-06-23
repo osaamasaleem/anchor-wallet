@@ -6,6 +6,7 @@ export type RootStackParamList = {
   Login: undefined;
   SignUp: undefined;
   Mnemonic: undefined;
+  MnemonicRecovery: undefined;
   MainApp: NavigatorScreenParams<TabParamList>;
   CredentialDetail: { credential: Credential };
   Notifications: undefined;
