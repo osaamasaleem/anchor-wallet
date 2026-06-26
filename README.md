@@ -17,6 +17,22 @@ Students use this app to:
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><img src="screenshots/Login/Signup Screen.png" width="200"/><br/><sub>Login / Signup</sub></td>
+    <td align="center"><img src="screenshots/Home Screen.png" width="200"/><br/><sub>Home Screen</sub></td>
+    <td align="center"><img src="screenshots/Credential Screen.png" width="200"/><br/><sub>Credentials</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="screenshots/Credential Detail Screen.png" width="200"/><br/><sub>Credential Detail</sub></td>
+    <td align="center"><img src="screenshots/Recovery Screen.png" width="200"/><br/><sub>Wallet Recovery</sub></td>
+  </tr>
+</table>
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
