@@ -21,7 +21,7 @@ Students use this app to:
 
 <table>
   <tr>
-    <td align="center"><img src="screenshots/Login/Signup Screen.png" width="200"/><br/><sub>Login / Signup</sub></td>
+    <td align="center"><img src="screenshots/Signup Screen.png" width="200"/><br/><sub>Login / Signup</sub></td>
     <td align="center"><img src="screenshots/Home Screen.png" width="200"/><br/><sub>Home Screen</sub></td>
     <td align="center"><img src="screenshots/Credential Screen.png" width="200"/><br/><sub>Credentials</sub></td>
   </tr>
