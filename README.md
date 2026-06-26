@@ -1,50 +1,137 @@
-# Welcome to your Expo app 👋
+# Anchor — Student Credential Wallet
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> Part of the **[Anchor](https://github.com/osaamasaleem)** decentralized academic credential platform.
 
-## Get started
+This repository contains the React Native mobile application for students — a self-sovereign credential wallet that stores W3C Verifiable Credentials, generates QR-based Verifiable Presentations, and supports mnemonic-based wallet recovery.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Overview
 
-2. Start the app
+Anchor is a decentralized academic credential system built on the **Polygon Amoy Testnet** using **W3C Verifiable Credentials**. Once a university issues a credential, it is anchored on-chain and the student receives it in this mobile wallet.
 
-   ```bash
-   npx expo start
-   ```
+Students use this app to:
+- View their issued academic credentials
+- Present credentials to verifiers via a time-limited QR code
+- Recover their wallet on a new device using a BIP-39 mnemonic phrase
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Tech Stack
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+| Layer | Technology |
+|---|---|
+| Framework | React Native (Expo) |
+| Language | TypeScript |
+| Blockchain | Polygon Amoy Testnet (Ethers.js) |
+| Credential Standard | W3C Verifiable Credentials / Verifiable Presentations |
+| Wallet Recovery | BIP-39 Mnemonic (12-word phrase) |
+| QR Code | Dynamic QR generation with 5-minute expiry timer |
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## System Architecture
 
-```bash
-npm run reset-project
+```
+┌─────────────────────────────────┐
+│        anchor-wallet            │
+│      (React Native / Expo)      │
+│                                 │
+│  - View credentials             │
+│  - Generate VP + QR code        │
+│  - Mnemonic recovery            │
+└────────────┬────────────────────┘
+             │ REST API
+             ▼
+       anchor-backend
+       (Node.js / Express / MongoDB)
+             │
+             └── Polygon Amoy Testnet
+                 (AnchorRegistry Smart Contract)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Getting Started
 
-To learn more about developing your project with Expo, look at the following resources:
+### Prerequisites
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Node.js v18+
+- Expo CLI: `npm install -g expo-cli`
+- [Expo Go](https://expo.dev/go) app on your Android/iOS device
 
-## Join the community
+### Installation
 
-Join our community of developers creating universal apps.
+```bash
+git clone https://github.com/osaamasaleem/anchor-wallet.git
+cd anchor-wallet
+npm install
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Environment Configuration
+
+Update the backend URL and contract address in your constants or `.env`:
+
+```env
+API_BASE_URL=http://localhost:5000
+CONTRACT_ADDRESS=your_deployed_contract_address
+POLYGON_RPC_URL=https://rpc-amoy.polygon.technology
+```
+
+### Running the App
+
+```bash
+npx expo start
+```
+
+Scan the QR code with **Expo Go** on your phone, or press `a` for Android emulator / `i` for iOS simulator.
+
+---
+
+## Key Features
+
+### Credential Wallet
+- Displays all W3C Verifiable Credentials issued to the student's wallet address
+- Fetches credential metadata from the backend
+- Shows credential details: degree, institution, date, and blockchain anchor status
+
+### QR-Based Verifiable Presentation
+- Student selects a credential to share
+- App generates a **W3C Verifiable Presentation (VP)** signed with the student's key
+- VP is encoded as a QR code with a **5-minute countdown timer** to prevent replay attacks
+- Verifier scans the QR from the `anchor-portals` verifier interface
+
+### Mnemonic Wallet Recovery
+- On first launch, a BIP-39 mnemonic phrase is generated and shown to the user
+- Student can restore their wallet on a new device using the 12-word phrase
+- Recovery fetches credentials associated with the restored wallet address from the backend
+
+---
+
+## Security Notes
+
+- Verifiable Presentations include a **nonce and expiry** to prevent replay attacks
+- The 5-minute QR timer enforces short-lived presentations
+- No private keys are ever sent to the backend
+- Credential authenticity is always verified against the Polygon smart contract
+
+---
+
+## Related Repositories
+
+| Repo | Description |
+|---|---|
+| [`anchor-portals`](https://github.com/osaamasaleem/anchor-portals) | Web portals for issuers (universities) and verifiers (employers) |
+| [`anchor-backend`](https://github.com/osaamasaleem/anchor-backend) | Node.js/Express API — credential management and smart contract interaction |
+
+---
+
+## Project Context
+
+Anchor is a Final Year Project developed at **Foundation University Islamabad (FUSST Campus)** for the BS Information Technology program. It addresses credential fraud and slow verification in academic institutions using blockchain immutability and decentralized identity standards.
+
+---
+
+## License
+
+This project is for academic purposes. All rights reserved.
